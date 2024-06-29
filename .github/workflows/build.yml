@@ -22,10 +22,10 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: '1.22'
 
@@ -39,7 +39,7 @@ jobs:
       run: go build -v -o ${{ matrix.output_name }} .
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.output_name }}
         path: ${{ matrix.output_name }}
@@ -47,9 +47,11 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
 
     - name: Create Release
       id: create_release
@@ -63,31 +65,11 @@ jobs:
         prerelease: false
 
     - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./ollama_update_linux/ollama_update_linux
+          ./ollama_update_macos/ollama_update_macos
+          ./ollama_update_windows.exe/ollama_update_windows.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./ollama_update_linux/ollama_update_linux
-        asset_name: ollama_update_linux
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (MacOS)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./ollama_update_macos/ollama_update_macos
-        asset_name: ollama_update_macos
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (Windows)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./ollama_update_windows.exe/ollama_update_windows.exe
-        asset_name: ollama_update_windows.exe
-        asset_content_type: application/octet-stream
