@@ -1,6 +1,6 @@
 module github.com/lstep/gollama-models-update
 
-go 1.22.4
+go 1.23
 
 require (
 	github.com/charmbracelet/bubbles v0.18.0
